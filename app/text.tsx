@@ -1,17 +1,41 @@
+
 import { useEffect, useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, ActivityIndicator } from "react-native";
+import {
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+  TextInput,
+  useWindowDimensions,
+  View,
+  Platform,
+} from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { translateText, getSupportedLanguages } from "./services/engines/google";
+import { addToHistory, addToFavorites, Translation } from "./services/storage";
+import { FontAwesome } from "@expo/vector-icons";
+import { ThemedView } from "./components/themed-view";
+import { ThemedText } from "./components/themed-text";
+import { useThemeColor } from "./hooks/use-theme-color";
 
 export default function TextTranslateScreen() {
+  const { width } = useWindowDimensions();
+  const isWideScreen = width > 768;
+
   const [input, setInput] = useState("");
-  const [translated, setTranslated] = useState("");
+  const [currentTranslation, setCurrentTranslation] = useState<Translation | null>(null);
   const [loading, setLoading] = useState(false);
   const [langLoading, setLangLoading] = useState(true);
+  const [isFavorited, setIsFavorited] = useState(false);
 
   const [sourceLang, setSourceLang] = useState("auto");
   const [targetLang, setTargetLang] = useState("en");
   const [languages, setLanguages] = useState<{ language: string; name: string }[]>([]);
+
+  const textColor = useThemeColor({}, 'text');
+  const primaryColor = useThemeColor({}, 'primary');
+  const inputBackgroundColor = useThemeColor({}, 'input');
 
   useEffect(() => {
     async function loadLanguages() {
@@ -30,86 +54,113 @@ export default function TextTranslateScreen() {
   async function handleTranslate() {
     if (!input.trim()) return;
     setLoading(true);
+    setCurrentTranslation(null);
+    setIsFavorited(false);
     try {
       const result = await translateText(input, targetLang, sourceLang);
-      setTranslated(result);
+      const newTranslation: Translation = {
+        id: Date.now().toString(),
+        sourceText: input,
+        translatedText: result,
+        sourceLang,
+        targetLang,
+        timestamp: Date.now(),
+      };
+      setCurrentTranslation(newTranslation);
+      await addToHistory(newTranslation);
     } catch (err: any) {
       console.error(err);
-      setTranslated("Translation failed 😔");
+      Alert.alert("Error", "Translation failed. Please try again.");
     } finally {
       setLoading(false);
     }
   }
 
+  async function handleAddToFavorites() {
+    if (!currentTranslation) return;
+    await addToFavorites(currentTranslation);
+    setIsFavorited(true);
+    Alert.alert("Success", "Added to favorites!");
+  }
+
   if (langLoading) {
     return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" />
-        <Text>Loading languages...</Text>
-      </View>
+      <ThemedView style={[styles.container, styles.centered]}>
+        <ActivityIndicator size="large" color={primaryColor} />
+        <ThemedText style={{ marginTop: 10 }}>Loading languages...</ThemedText>
+      </ThemedView>
     );
   }
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Text Translator</Text>
-
-      <Text style={styles.label}>From:</Text>
-      <Picker
-        selectedValue={sourceLang}
-        style={styles.picker}
-        onValueChange={(val) => setSourceLang(val)}
-      >
-        <Picker.Item label="Auto Detect" value="auto" />
-        {languages.map((lang) => (
-          <Picker.Item key={lang.language} label={lang.name} value={lang.language} />
-        ))}
-      </Picker>
-
-      <Text style={styles.label}>To:</Text>
-      <Picker
-        selectedValue={targetLang}
-        style={styles.picker}
-        onValueChange={(val) => setTargetLang(val)}
-      >
-        {languages.map((lang) => (
-          <Picker.Item key={lang.language} label={lang.name} value={lang.language} />
-        ))}
-      </Picker>
-
-      <TextInput
-        style={styles.input}
-        placeholder="Enter text"
-        value={input}
-        onChangeText={setInput}
-      />
-      <Button
-        title={loading ? "Translating..." : "Translate"}
-        onPress={handleTranslate}
-      />
-
-      {translated ? <Text style={styles.output}>{translated}</Text> : null}
+  const inputSection = (
+    <View style={styles.inputSection}>
+      <View style={styles.pickerContainer}>
+        <View style={styles.pickerWrapper}>
+          <ThemedText style={styles.label}>From:</ThemedText>
+          <Picker selectedValue={sourceLang} onValueChange={(val) => setSourceLang(val)} style={[styles.picker, { backgroundColor: inputBackgroundColor, color: textColor }]}>
+            <Picker.Item label="Auto Detect" value="auto" />
+            {languages.map((lang) => (
+              <Picker.Item key={lang.language} label={lang.name} value={lang.language} />
+            ))}
+          </Picker>
+        </View>
+        <View style={styles.pickerWrapper}>
+          <ThemedText style={styles.label}>To:</ThemedText>
+          <Picker selectedValue={targetLang} onValueChange={(val) => setTargetLang(val)} style={[styles.picker, { backgroundColor: inputBackgroundColor, color: textColor }]}>
+            {languages.map((lang) => (
+              <Picker.Item key={lang.language} label={lang.name} value={lang.language} />
+            ))}
+          </Picker>
+        </View>
+      </View>
+      <TextInput style={[styles.input, { backgroundColor: inputBackgroundColor, color: textColor }]} placeholder="Enter text" placeholderTextColor="#888" value={input} onChangeText={setInput} multiline />
+      <TouchableOpacity style={[styles.translateButton, { backgroundColor: primaryColor }]} onPress={handleTranslate} disabled={loading}>
+        {loading ? <ActivityIndicator color="#fff" /> : <ThemedText style={styles.translateButtonText}>Translate</ThemedText>}
+      </TouchableOpacity>
     </View>
+  );
+
+  const outputSection = currentTranslation && (
+    <ThemedView colorName="card" style={styles.outputContainer}>
+      <ThemedText style={styles.output}>{currentTranslation.translatedText}</ThemedText>
+      <TouchableOpacity onPress={handleAddToFavorites} style={styles.favoriteButton} disabled={isFavorited}>
+        <FontAwesome name={isFavorited ? "heart" : "heart-o"} size={24} color={isFavorited ? "#ff4c4c" : textColor} />
+      </TouchableOpacity>
+    </ThemedView>
+  );
+
+  return (
+    <ThemedView style={styles.container}>
+      {isWideScreen ? (
+        <View style={styles.horizontalContainer}>
+          <View style={styles.column}>{inputSection}</View>
+          <View style={[styles.column, { marginLeft: 20 }]}>{outputSection}</View>
+        </View>
+      ) : (
+        <ScrollView contentContainerStyle={styles.contentContainer}>
+          {inputSection}
+          {outputSection}
+        </ScrollView>
+      )}
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", alignItems: "center", padding: 16 },
-  title: { fontSize: 24, fontWeight: "bold", marginBottom: 10 },
-  label: { alignSelf: "flex-start", marginLeft: 10, marginTop: 10, fontSize: 16 },
-  picker: {
-    height: 50,
-    width: "100%",
-    borderWidth: 1,
-    borderColor: "#ccc",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    width: "100%",
-    padding: 10,
-    borderRadius: 8,
-    marginTop: 10,
-  },
-  output: { fontSize: 20, marginTop: 20, textAlign: "center" },
+  container: { flex: 1}, // Center content for web
+  centered: { alignItems: 'center', justifyContent: 'center' },
+  contentContainer: { padding: 16, width: '100%' },
+  horizontalContainer: { flexDirection: 'row', padding: 20, width: '100%', maxWidth: 1200, justifyContent: 'center' },
+  column: { flex: 1, maxWidth: 500 },
+  inputSection: { flex: 1 },
+  pickerContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 },
+  pickerWrapper: { flex: 1, marginHorizontal: 4 },
+  label: { marginBottom: 8, fontSize: 16 },
+  picker: { borderRadius: 8, height: 50, borderWidth: 0, paddingHorizontal: 10 },
+  input: { borderRadius: 8, padding: 16, fontSize: 18, minHeight: 150, textAlignVertical: 'top' },
+  translateButton: { padding: 16, borderRadius: 8, alignItems: 'center', marginTop: 16 },
+  translateButtonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
+  outputContainer: { marginTop: 24, padding: 16, borderRadius: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 200 },
+  output: { fontSize: 20, flex: 1 },
+  favoriteButton: { paddingLeft: 16 },
 });
