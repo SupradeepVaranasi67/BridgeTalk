@@ -36,6 +36,7 @@ export default function TextTranslateScreen() {
   const textColor = useThemeColor({}, 'text');
   const primaryColor = useThemeColor({}, 'primary');
   const inputBackgroundColor = useThemeColor({}, 'input');
+  const cardColor = useThemeColor({}, 'card');
 
   useEffect(() => {
     async function loadLanguages() {
@@ -119,9 +120,8 @@ export default function TextTranslateScreen() {
       </TouchableOpacity>
     </View>
   );
-
   const outputSection = currentTranslation && (
-    <ThemedView colorName="card" style={styles.outputContainer}>
+    <ThemedView style={[styles.outputContainer, { backgroundColor: cardColor }]}>
       <ThemedText style={styles.output}>{currentTranslation.translatedText}</ThemedText>
       <TouchableOpacity onPress={handleAddToFavorites} style={styles.favoriteButton} disabled={isFavorited}>
         <FontAwesome name={isFavorited ? "heart" : "heart-o"} size={24} color={isFavorited ? "#ff4c4c" : textColor} />

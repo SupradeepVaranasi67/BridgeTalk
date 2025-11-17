@@ -6,7 +6,7 @@ import { ThemedView } from './components/themed-view';
 import { ThemedText } from './components/themed-text';
 import { useThemeColor } from './hooks/use-theme-color';
 
-const features = [
+const features: { name: string; icon: string; route: "/text" | "/ocr" | "/translator" | "/settings" }[] = [
   { name: "Text Translation", icon: "language", route: "/text" },
   { name: "OCR Translation", icon: "camera", route: "/ocr" },
   { name: "My Translations", icon: "history", route: "/translator" },
@@ -20,9 +20,9 @@ export default function Index() {
   const numColumns = width > 768 ? 4 : 2;
   const cardWidth = width > 768 ? 200 : (width / 2) - 30;
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item }: { item: { name: string; icon: string; route: "/text" | "/ocr" | "/translator" | "/settings" } }) => (
     <TouchableOpacity onPress={() => router.push(item.route)}>
-      <ThemedView colorName="card" style={[styles.card, { width: cardWidth }]}>
+      <ThemedView colorName="card" style={[styles.card, { width: cardWidth }]}> 
         <FontAwesome5 name={item.icon as any} size={40} color={iconColor} />
         <ThemedText style={styles.cardText}>{item.name}</ThemedText>
       </ThemedView>

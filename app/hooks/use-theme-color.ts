@@ -15,3 +15,5 @@ export function useThemeColor(
     return Colors[theme][colorName];
   }
 }
+
+export default useThemeColor;

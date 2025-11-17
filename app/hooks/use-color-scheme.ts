@@ -5,3 +5,5 @@ export function useColorScheme() {
   const { colorScheme } = useTheme();
   return colorScheme;
 }
+
+export default useColorScheme;

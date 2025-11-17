@@ -30,3 +30,5 @@ export const Colors = {
     error: '#ff6b6b',
   },
 };
+
+export default Colors;

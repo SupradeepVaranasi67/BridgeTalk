@@ -21,8 +21,7 @@
       "permissions": [
         "RECORD_AUDIO",
         "CAMERA",
-        "RECORD_AUDIO",
-        "CAMERA"
+        "READ_EXTERNAL_STORAGE"
       ],
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,

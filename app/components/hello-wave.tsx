@@ -17,3 +17,5 @@ export function HelloWave() {
     </Animated.Text>
   );
 }
+
+export default HelloWave;

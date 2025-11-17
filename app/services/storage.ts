@@ -64,3 +64,4 @@ export const removeFromFavorites = async (translationId: string): Promise<void> 
     console.error("Error removing from favorites:", error);
   }
 };
+

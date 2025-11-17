@@ -16,3 +16,5 @@ export function HapticTab(props: BottomTabBarButtonProps) {
     />
   );
 }
+
+export default HapticTab;
