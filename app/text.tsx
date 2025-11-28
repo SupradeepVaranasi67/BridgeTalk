@@ -3,13 +3,13 @@ import { FontAwesome } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    ScrollView,
-    StyleSheet,
-    TextInput,
-    TouchableOpacity,
-    useWindowDimensions,
-    View
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  useWindowDimensions,
+  View
 } from "react-native";
 import { ThemedText } from "./components/themed-text";
 import { ThemedView } from "./components/themed-view";
@@ -68,6 +68,7 @@ export default function TextTranslateScreen() {
         sourceLang,
         targetLang,
         timestamp: Date.now(),
+        type: 'text',
       };
       setCurrentTranslation(newTranslation);
       await addToHistory(newTranslation);
@@ -106,9 +107,9 @@ export default function TextTranslateScreen() {
             style={[styles.picker, { backgroundColor: 'transparent', color: textColor }]}
             dropdownIconColor={textColor}
           >
-            <Picker.Item label="Auto Detect" value="auto" color={textColor} />
+            <Picker.Item label="Auto Detect" value="auto" color={textColor} style={{ backgroundColor: inputBackgroundColor }} />
             {languages.map((lang) => (
-              <Picker.Item key={lang.language} label={lang.name} value={lang.language} color={textColor} />
+              <Picker.Item key={lang.language} label={lang.name} value={lang.language} color={textColor} style={{ backgroundColor: inputBackgroundColor }} />
             ))}
           </Picker>
         </View>
@@ -121,7 +122,7 @@ export default function TextTranslateScreen() {
             dropdownIconColor={textColor}
           >
             {languages.map((lang) => (
-              <Picker.Item key={lang.language} label={lang.name} value={lang.language} color={textColor} />
+              <Picker.Item key={lang.language} label={lang.name} value={lang.language} color={textColor} style={{ backgroundColor: inputBackgroundColor }} />
             ))}
           </Picker>
         </View>
@@ -162,10 +163,10 @@ export default function TextTranslateScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1}, // Center content for web
   centered: { alignItems: 'center', justifyContent: 'center' },
-  contentContainer: { padding: 16, width: '100%' },
+  contentContainer: { padding: 16, width: '100%', flexGrow: 1, justifyContent: 'center' },
   horizontalContainer: { flexDirection: 'row', padding: 20, width: '100%', maxWidth: 1200, justifyContent: 'center' },
   column: { flex: 1, maxWidth: 500 },
-  inputSection: { flex: 1 },
+  inputSection: { width: '100%' },
   pickerContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 },
   pickerWrapper: { flex: 1, marginHorizontal: 4 },
   label: { marginBottom: 8, fontSize: 16 },

@@ -3,3 +3,5 @@ export const Config = {
     RAPIDAPI_HOST: "google-translate113.p.rapidapi.com",
     RAPIDAPI_URL: "https://google-translate113.p.rapidapi.com/api/v1/translator",
 };
+
+export default Config;
