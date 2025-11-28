@@ -55,7 +55,7 @@ BridgeTalk is a powerful and intuitive translation application designed to bridg
 
 1.  **Clone the repository**
     ```bash
-    git clone https://github.com/yourusername/BridgeTalk.git
+    git clone https://github.com/SupradeepVaranasi67/BridgeTalk.git
     cd BridgeTalk
     ```
 
@@ -94,11 +94,3 @@ BridgeTalk is a powerful and intuitive translation application designed to bridg
 3.  **Speech Mode**: Tap the microphone to speak.
 4.  **OCR Mode**: Select an image or take a photo to extract and translate text. Use the volume icon to hear the result.
 5.  **History/Favorites**: Access your past translations from the top-right menu.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📄 License
-
-This project is licensed under the MIT License.
